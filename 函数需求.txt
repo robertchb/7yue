@@ -1,0 +1,96 @@
+/*************************现在有时间就可以学习的***********/
+CMNG_CFG_VLCS_ConfigVLCS/CMNG_SetPerReg_Callback/CMREG_get_stack_status/CMREG_Get_BoardsState_Callback/CMREG_Get_FramesState_Callback/CMNG_CFG_VLCS_getVlcsStatus
+huawei-device/huawei-board/huawei-frame/huawei-stack
+
+CMREG_ControllerOnlineProc_9300/CMREG_ControllerOnlineProc_5500
+
+
+/*************************个人构建大包上传不了设备的形态***********/
+自己本地编的大包（用自己的编译机子编的大包），盒式5730hi，5731hi，6720hi,6730hi，框式的 SRUH  MPUD SRUX SRUHE MCUD 主控应该都加载不到设备上。
+
+/*************************查询盒式产品信息*************************/
+(eg)srm_var_s6730hi.c
+
+
+/*************************yang模型路径***********/
+extern\opensource\yang\yang_module_repository\Uniform-model\model
+
+
+
+/*************************获取本板ID*************************/
+PPI_DEV_GetSelfBoardID();  //盒式 返回值为ULONG型             LHAL_GetBoardExtType   //框子
+DRV_GetPhySlot()  ;        //获取物理槽号
+
+
+/*************************识别硬件*************************/
+Dis dsms variable slot ?        LE->93  LH->9e  ET->127(9e)
+然后对应到dev_hal_comm.c文件中查找，第四行中第二列中的CPU对应的为编译
+
+
+/*************************网管适配文件*************************/
+entitymib_tree.c   //网管mib节点存放文件
+entitymib_adp.c  //网管适配文件
+
+
+
+/***************************************重启/告警信息查询*****************************************/
+Srm_info.c中查看设备告警信息
+Dev_reset.c中查看设备重启信息
+
+
+/*************************盒子风扇调速*************************/
+风扇PID调速下发
+fanadj_TargetTempConfig.c      //风扇调速
+针对风扇，有手动模式，如果此刻为手动模式，且没有故障，需要将风扇速度设置成故障前的风扇转速。
+
+
+
+/*************************VOS库函数*************************/
+1.LONG VOS_atoul（const CHAR *szStr，ULONG *pulVal）
+功    能：将字符串转化为ULONG型整数；
+参    数：	*szStr：待转化字符串；
+		*pnVal：存储转化后的整数；
+返回值：	0：转化成功；
+		-1：转化失败；
+		
+		
+2.VOS_CHAR * VOS_StrTrim(VOS_CHAR *pscStr)
+功   能：删除空白的字符串
+
+
+/*************************netconf中的回调函数入口*************************/
+cmng_cfg_pub.c
+
+
+/*************************堆叠是否使能*************************/
+堆叠是否使能函数:    HAL_IsCssEnable()
+
+
+/*************************交换机告警上报控制器*************************/
+cmaint_trap.c
+
+/*************************控制器侧回调函数参数说明*************************/
+(int sid, int oper, int more, int priority, const char *path)
+其中sid：触发配置变更的北向session id
+oper:结点变更操作类型
+more:对于list类结点变更通知有效，非list结点，该值固定为0.
+     0：表示通知到最后一条记录了
+	 其他:表示还是变更的list记录未通知完
+priority:订阅优先级
+path:具体变更的数据结点的路径信息。
+
+
+/*************************CMNG_CFG_VLCS_ConfigVLCS*************************/
+【配置虚拟license流程】
+1.首先通过CMNG_CFG_VLCS_ParseConfigData解析配置的数据
+2.申请magic-word空间，获取magic-word，并且校验magic-word(magic-word string that indicates whether operation is legal.)
+3.激活控制项
+//处理控制器在线分发/回收VLCS结点
+CMNG_CFG_VLCS_ActiveGivenVirtualLCSInfo()	//
+【获取db数据】
+CMNG_CFG_Get_Database_Value(ULONG isOldFlg,char *path,conf_val_t *val)
+isOldFlg代表是否需要回退,path代路径，val代表得到的数据
+【获得xml文件内容函数】
+xmlNodeGetContent() ；//创建了内存，用完之后需要进行内存释放
+xmlFree();  //并将指针置空
+

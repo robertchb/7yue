@@ -1,0 +1,212 @@
+/***************************************strstr(str1,str2)*****************************************/
+ strstr(str1,str2);
+ str1:被查找目标
+ str2:要查找对象
+ 返回值：若str2是str1的子串，则返回str2在str1的首次出现的地址，若str2不是str1的子串，返回NULL
+(eg):
+char str[]="1234xyz";
+char *str1=strstr(str,"34");
+cout << str1 << endl;
+显示的是34xyz
+
+char *strstr(const char *s1,const char *s2)
+{
+	int len2;
+	if (!(len2=strlen(s2))) 
+		return (char* )s1;
+	for(;*s1;s1++)
+	{
+		if(*s1 == *s2 && strncmp(s1,s2,len)==0){
+			return (char*) s1;
+		}
+	}
+	return NULL;
+}
+
+
+/***************************************memcpy_s函数、strcpy_s函数、memset_s函数*****************************************/
+memcpy_s(void *dest,size_t numberOfElements,const void *src,size_t count)
+【参数说明】：dest-目标地址
+numberOfElements-目标地址的字符个数
+src-源地址
+count-需要拷贝的源字符个数
+
+_ACRTIMP errno_t __cdecl strcpy_s(
+        _Out_writes_z_(_SizeInBytes) char*       _Destination,
+        _In_                         rsize_t     _SizeInBytes,
+        _In_z_                       char const* _Source
+        );
+--------------------- 
+【参数说明】:
+第一个参数：目标字符串指针
+第二个参数：字符串长度，可使用strlen()函数直接求出，切记，在使用strlen()求出字符串长度时，勿忘+1
+第三个参数：输入字符串指针
+【memcpy_s与strcpy_s的区别】
+1、复制的内容不同。strcpy只能复制字符串，而memcpy可以复制任意内容，例如字符数组、整型、结构体、类等。
+2、复制的方法不同。strcpy不需要指定长度，它遇到被复制字符的串结束符"\0"才结束，所以容易溢出。memcpy则是根据其第3个参数决定复制的长度。
+3、用途不同。通常在复制字符串时用strcpy，而需要复制其他类型数据时则一般用memcpy
+【内存重叠】：目的地址会将源地址里面的东西改变。
+1.拷贝的目的地址在源地址的范围内，有重叠。(eg)strcpy(p+1,p);
+2.如何判断内存重叠？
+(1)若目的地址小于源地址。
+(2)目的地址所指的区域是源地址的一部分。
+3.如何解决内存堆叠？
+在遇到内存堆叠这一问题时，需要考虑拷贝方向。当源地址和目的地址不重叠的时候，由低字节向高字节拷贝。
+当两者重叠时，高字节向低字节拷贝。
+所以必须从高地址开始复制。这样源地址总是走得比目的地址靠近低地址，也就是目的地址永远赶不上还没有复制内容给他的源地址。所以可以正常复制
+
+errno_t memset_s（void * dest，rsize_t destsz，int ch，rsize_t count）
+【参数说明】
+dest:为指向要填充的对象的指针！！！不能为空指针
+destsz：目标数组的大小
+ch：填充字节
+count:要填充的字节数
+
+
+/***************************************strcmp()函数*****************************************/
+  int strcmp(const char *s1, const char *s2);
+【参数】s1, s2 为需要比较的两个字符串。
+字符串大小的比较是以ASCII 码表上的顺序来决定，此顺序亦为字符的值。strcmp()首先将s1 第一个字符值减去s2 第一个字符值，若差值为0 则再继续比较下个字符，若差值不为0 则将差值返回。
+例如字符串"Ac"和"ba"比较则会返回字符"A"(65)和'b'(98)的差值(－33)。
+【返回值】若参数s1 和s2 字符串相同则返回0。s1 若大于s2 则返回大于0 的值。s1 若小于s2 则返回小于0 的值。
+注意：strcmp() 以二进制的方式进行比较，不会考虑多字节或宽字节字符；如果考虑到本地化的需求，请使用 strcoll() 函数。
+
+/***************************************sscanf函数*****************************************/
+sscanf()函数用于从字符串中读取指定格式的数据，其原型如下：
+ int sscanf (const char *buffer , const char *format , [argument ]...);
+ 【参数】buffer:存储的数据
+		 format：格式控制字符串
+		 argument：选择性设定字符串
+ 【返回值】成功则返回参数数目，失败则返回-1。
+ (eg):sscanf("1 2 3","%d %d %d",buf1,buf2,buf3);成功调用返回值为3，即buf1,buf2,buf3均成功转换。
+ sscanf("1 2","%d %d %d",buf1,buf2,buf3);成功调用返回值为2，即只有buf1，buf2成功转换。
+ sscanf会从buffer里读进数据，依照format的格式将数据写入到argument里。
+ 
+ 
+ /***************************************回调函数理解*****************************************/
+ 回调函数就是一个通过函数指针调用的函数。 如果你把函数的指针（地址）作为参数传递给另一个函数，当这个指针被用来调用其所指向的函数时，我们就说这是回调函数。 
+ 回调函数不是由该函数的实现方直接调用，而是在特定的事件或条件发生时由另外的一方调用的，用于对该事件或条件进行响应。
+#include<stdio.h>
+#include<stdlib.h>
+#include<assert.h>
+typedef int(*FP_CALC)(int, int); //定义一个函数指针类型
+int add(int a, int b)
+{
+	return a + b;
+}
+int sub(int a, int b)
+{
+	return a - b;
+}
+int mul(int a, int b)
+{
+	return a * b;
+}
+int div1(int a, int b)
+{
+	return b ? a / b : -1;
+}
+//定义一个函数，参数为op，返回一个指针，该指针的类型为拥有两个int参数，
+//返回类型为int的函数指针。它的作用是根据操作符返回相应函数的地址
+FP_CALC calc_func(char op)
+{
+	switch (op)
+	{
+	case '+':
+		return add;
+	case '-':
+		return sub;
+	case '*':
+		return mul;
+	case '/':
+		return div1;
+	default:
+		return NULL;
+	}
+	return NULL;
+}
+//s_calc_func为函数，它的参数为op，返回值为一个拥有两个int参数、返回类型为int的函数指针
+int(*s_calc_func(char op))(int, int)
+{
+	return calc_func(op);
+}
+int calc(int a, int b, char op)
+{
+	FP_CALC fp = calc_func(op);
+	int(*s_fp)(int, int) = s_calc_func(op);//用于测试
+	assert(fp == s_fp); //可以断言这两个是相等的
+	if (fp)
+		return fp(a, b);
+	else
+		return -1;
+}
+int main()
+{
+	int a = 100, b = 20;
+	printf("calc(%d, %d, %c) = %d\n", a, b, '+', calc(a, b, '+'));
+	printf("calc(%d, %d, %c) = %d\n", a, b, '-', calc(a, b, '-'));
+	printf("calc(%d, %d, %c) = %d\n", a, b, '*', calc(a, b, '*'));
+	printf("calc(%d, %d, %c) = %d\n", a, b, '/', calc(a, b, '/'));
+	system("pause");
+	return 0;
+}
+
+/***************************************踩内存*****************************************/
+概念：对不属于你的内存进行读写就是踩内存
+解决问题难点：通常踩内存时间点和程序崩溃时间点没有任何关系，在踩内存发生时，程序并不一定马上崩溃，程序崩溃通常是在之后的某个时间点，从表象上看不出必然联系，所以该类问题很难调试；
+
+2.踩内存的分类：
+2.1越界踩内存
+(eg):char *p;
+p=malloc(5);
+strcpy(p,"hello");
+
+2.2use after free
+(eg)：char *p;
+p = malloc(6);
+strcpy(p,"hello");
+free(p);
+strcpy(p,"world");
+
+2.3随机踩内存
+(eg)int array[10];
+array[i]=i;
+
+
+/***************************************变量后面用：*****************************************/
+该种形式出现于结构体或共用体的定义中，是位域定义的标准形式。
+其使用方式为
+struct name
+{
+type var_name : n;
+};
+含义为，在结构体name汇总，成员变量var_name占用空间为n位。
+n为正整数，其值必须小于type类型占用的位数。比如type如果是int，占4字节32位，那么n必须是1~31之间的整数。
+对于位域类型的成员，在赋值时如果实际值超过n位所能表达的范围，那么超出部分将会被截掉，只保存低位值。
+如int var:4,本身只有4位的空间，如果赋值var = 20, 由于20的二进制值为10100，实际为五位，这时var实际被赋值的就是低四位，0100，即4。
+由于C语言中的地址是针对字节计算的，所以位域类型的成员变量不支持取地址操作，即对于变量v, 如果存在位域成员变量var，那么&a.var是非法的，编译会出错。
+
+
+/***************************************strTrim函数*****************************************/
+【函数功能】：去掉字符串的空字符
+char *strTrim(char *s)
+{
+	char *p1=s;
+	char *p2=s;
+	while(*p1 != '\0')
+	{
+		while(*p1 == ' ' || *p1=='\t')
+		{
+			p1++;
+		}
+		*p2 ++ =*p1 ++;
+	}
+	*p2='\0';
+	return (s);
+}
+
+
+/***************************************公司函数*****************************************/
+VOID *VOS_Malloc(ULONG ulInfo,ULONG ulSize) 
+【参数】ulInfo:为调用此函数的模块的ID。
+ulSize:为申请的内存块的大小，此值必须大于0.
